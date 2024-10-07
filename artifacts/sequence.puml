@@ -1,0 +1,131 @@
+@startuml
+actor User as "Пользователь"
+participant MobileApp as "Мобильное Приложение"
+participant WebApp as "Веб Приложение"
+participant APIGateway as "API Gateway"
+participant AuthService as "Сервис Аутентификации"
+participant UserManagement as "Управление Пользователями"
+participant WorkoutManagement as "Управление Тренировками"
+participant AITrainer as "AI Персональный Тренер"
+participant Analytics as "Аналитика и Рекомендации"
+participant Notifications as "Управление Уведомлениями"
+participant Inventory as "Управление Инвентарем"
+participant Database as "База Данных"
+participant NotificationService as "Сервис Уведомлений"
+participant PaymentService as "Сервис Платежей"
+participant SocialService as "Социальные Функции"
+
+User -> MobileApp : Запрос на аутентификацию
+User -> WebApp : Запрос на аутентификацию
+
+MobileApp -> APIGateway : Аутентификация пользователя
+WebApp -> APIGateway : Аутентификация пользователя
+
+APIGateway -> AuthService : Проверка учетных данных
+AuthService -> Database : Запрос на проверку учетных данных
+Database --> AuthService : Ответ с результатами проверки
+AuthService --> APIGateway : Результаты проверки
+APIGateway --> MobileApp : Ответ на аутентификацию
+APIGateway --> WebApp : Ответ на аутентификацию
+
+User -> MobileApp : Запрос на тренировку
+User -> WebApp : Запрос на тренировку
+
+MobileApp -> APIGateway : Запрос на тренировки
+WebApp -> APIGateway : Запрос на тренировки
+
+APIGateway -> WorkoutManagement : Получение доступных тренировок
+WorkoutManagement -> Database : Запрос на данные тренировок
+Database --> WorkoutManagement : Ответ с данными тренировок
+WorkoutManagement --> APIGateway : Данные тренировок
+APIGateway --> MobileApp : Ответ с данными тренировок
+APIGateway --> WebApp : Ответ с данными тренировок
+
+User -> MobileApp : Запрос на AI-тренера
+User -> WebApp : Запрос на AI-тренера
+
+MobileApp -> APIGateway : Запрос на AI-тренера
+WebApp -> APIGateway : Запрос на AI-тренера
+
+APIGateway -> AITrainer : Запрос на рекомендации тренера
+AITrainer -> WorkoutManagement : Получение информации о текущей тренировке
+WorkoutManagement --> AITrainer : Данные о тренировке
+AITrainer --> APIGateway : Рекомендации от AI
+APIGateway --> MobileApp : Рекомендации AI-тренера
+APIGateway --> WebApp : Рекомендации AI-тренера
+
+User -> MobileApp : Запрос на уведомления
+User -> WebApp : Запрос на уведомления
+
+MobileApp -> APIGateway : Запрос на уведомления
+WebApp -> APIGateway : Запрос на уведомления
+
+APIGateway -> NotificationService : Получение уведомлений
+NotificationService -> Database : Запрос на уведомления
+Database --> NotificationService : Ответ с уведомлениями
+NotificationService --> APIGateway : Уведомления
+APIGateway --> MobileApp : Уведомления
+APIGateway --> WebApp : Уведомления
+
+User -> MobileApp : Запрос на инвентарь
+User -> WebApp : Запрос на инвентарь
+
+MobileApp -> APIGateway : Запрос на инвентарь
+WebApp -> APIGateway : Запрос на инвентарь
+@startuml
+actor User as "User"
+participant MobileApp as "Mobile App"
+participant WebApp as "Web App"
+participant APIGateway as "API Gateway"
+participant AuthService as "Auth Service"
+participant UserManagement as "User Management"
+participant WorkoutManagement as "Workout Management"
+participant AITrainer as "AI Trainer"
+participant Analytics as "Analytics"
+participant Database as "Database"
+participant NotificationService as "Notification Service"
+
+== Registration Process ==
+User -> MobileApp : 1. Open app and select registration
+MobileApp -> APIGateway : 2. Send registration request
+APIGateway -> AuthService : 3. Forward registration request
+AuthService -> Database : 4. Create new user
+Database --> AuthService : 5. Confirm user creation
+AuthService --> APIGateway : 6. Notify success
+APIGateway --> MobileApp : 7. Send registration confirmation
+MobileApp --> User : 8. Notify user of successful registration
+
+== Start Training ==
+User -> MobileApp : 9. Select AI trainer for training
+MobileApp -> APIGateway : 10. Request available workouts
+APIGateway -> WorkoutManagement : 11. Forward workout request
+WorkoutManagement -> Database : 12. Get available workouts
+Database --> WorkoutManagement : 13. Provide workout data
+WorkoutManagement --> APIGateway : 14. Send workout list
+APIGateway --> MobileApp : 15. Send workout data
+User -> MobileApp : 16. Select workout and start it
+MobileApp -> APIGateway : 17. Request AI training assistance
+APIGateway -> AITrainer : 18. Forward request for recommendations
+AITrainer -> WorkoutManagement : 19. Analyze user data and workout
+WorkoutManagement --> AITrainer : 20. Provide workout details
+AITrainer --> APIGateway : 21. Send recommendations
+APIGateway --> MobileApp : 22. Provide recommendations
+MobileApp --> User : 23. Display AI trainer recommendations
+
+@enduml
+
+APIGateway -> Inventory : Запрос на данные инвентаря
+Inventory -> Database : Запрос на инвентарь
+Database --> Inventory : Данные инвентаря
+Inventory --> APIGateway : Данные инвентаря
+APIGateway --> MobileApp : Данные инвентаря
+APIGateway --> WebApp : Данные инвентаря
+
+User -> MobileApp : Запрос на оплату
+User -> WebApp : Запрос на оплату
+
+MobileApp -> APIGateway : Запрос на платеж
+WebApp -> APIGateway : Запрос на платеж
+
+APIGateway -> PaymentService : Обработка платежа
+PaymentService -> Database : Запрос на платежную и
