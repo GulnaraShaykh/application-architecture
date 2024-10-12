@@ -1,131 +1,116 @@
 @startuml
 actor User as "Пользователь"
-participant MobileApp as "Мобильное Приложение"
-participant WebApp as "Веб Приложение"
-participant APIGateway as "API Gateway"
-participant AuthService as "Сервис Аутентификации"
-participant UserManagement as "Управление Пользователями"
-participant WorkoutManagement as "Управление Тренировками"
-participant AITrainer as "AI Персональный Тренер"
-participant Analytics as "Аналитика и Рекомендации"
-participant Notifications as "Управление Уведомлениями"
-participant Inventory as "Управление Инвентарем"
-participant Database as "База Данных"
-participant NotificationService as "Сервис Уведомлений"
-participant PaymentService as "Сервис Платежей"
-participant SocialService as "Социальные Функции"
+participant MobileApp as "Мобильное Приложение\n(Mobile App)"
+participant WebApp as "Веб Приложение\n(Web App)"
+participant ExternalAPIGateway as "Внешний API Gateway\n(External API Gateway)"
+participant InternalAPIGateway as "Внутренний API Gateway\n(Internal API Gateway)"
+participant AuthService as "Сервис Аутентификации\n(Auth Service)"
+participant UserManagement as "Управление Пользователями\n(User Management)"
+participant WorkoutManagement as "Управление Тренировками\n(Workout Management)"
+participant NotificationService as "Сервис Уведомлений\n(Notification Service)"
+participant Inventory as "Управление Инвентарем\n(Inventory Management)"
+participant PaymentService as "Сервис Платежей\n(Payment Service)"
+participant AuthDatabase as "База Данных Аутентификации\n(Auth Database)"
+participant UserDatabase as "База Данных Пользователей\n(User Database)"
+participant WorkoutDatabase as "База Данных Тренировок\n(Workout Database)"
+participant NotificationDatabase as "База Данных Уведомлений\n(Notification Database)"
+participant InventoryDatabase as "База Данных Инвентаря\n(Inventory Database)"
+participant PaymentDatabase as "База Данных Платежей\n(Payment Database)"
+participant MonitoringService as "Система Мониторинга\n(Monitoring Service)"
+participant Grafana as "Grafana"
+participant Prometheus as "Prometheus"
 
-User -> MobileApp : Запрос на аутентификацию
-User -> WebApp : Запрос на аутентификацию
+== Запрос на аутентификацию ==
+User -> MobileApp : 1. Запрос на аутентификацию
+User -> WebApp : 2. Запрос на аутентификацию
 
-MobileApp -> APIGateway : Аутентификация пользователя
-WebApp -> APIGateway : Аутентификация пользователя
+MobileApp -> ExternalAPIGateway : 3. Аутентификация пользователя
+WebApp -> ExternalAPIGateway : 4. Аутентификация пользователя
 
-APIGateway -> AuthService : Проверка учетных данных
-AuthService -> Database : Запрос на проверку учетных данных
-Database --> AuthService : Ответ с результатами проверки
-AuthService --> APIGateway : Результаты проверки
-APIGateway --> MobileApp : Ответ на аутентификацию
-APIGateway --> WebApp : Ответ на аутентификацию
+ExternalAPIGateway -> AuthService : 5. Проверка учетных данных
+AuthService -> AuthDatabase : 6. Запрос на проверку учетных данных
+AuthDatabase --> AuthService : 7. Ответ с результатами проверки
+AuthService --> ExternalAPIGateway : 8. Результаты проверки
+ExternalAPIGateway --> MobileApp : 9. Ответ на аутентификацию
+ExternalAPIGateway --> WebApp : 10. Ответ на аутентификацию
 
-User -> MobileApp : Запрос на тренировку
-User -> WebApp : Запрос на тренировку
+== Запрос на тренировку ==
+User -> MobileApp : 11. Запрос на тренировку
+User -> WebApp : 12. Запрос на тренировку
 
-MobileApp -> APIGateway : Запрос на тренировки
-WebApp -> APIGateway : Запрос на тренировки
+MobileApp -> ExternalAPIGateway : 13. Запрос на тренировки
+WebApp -> ExternalAPIGateway : 14. Запрос на тренировки
 
-APIGateway -> WorkoutManagement : Получение доступных тренировок
-WorkoutManagement -> Database : Запрос на данные тренировок
-Database --> WorkoutManagement : Ответ с данными тренировок
-WorkoutManagement --> APIGateway : Данные тренировок
-APIGateway --> MobileApp : Ответ с данными тренировок
-APIGateway --> WebApp : Ответ с данными тренировок
+ExternalAPIGateway -> InternalAPIGateway : 15. Пересылка запроса на тренировки
+InternalAPIGateway -> WorkoutManagement : 16. Получение доступных тренировок
+WorkoutManagement -> WorkoutDatabase : 17. Запрос на данные тренировок
+WorkoutDatabase --> WorkoutManagement : 18. Ответ с данными тренировок
+WorkoutManagement --> InternalAPIGateway : 19. Данные тренировок
+InternalAPIGateway --> ExternalAPIGateway : 20. Ответ с данными тренировок
+ExternalAPIGateway --> MobileApp : 21. Ответ с данными тренировок
+ExternalAPIGateway --> WebApp : 22. Ответ с данными тренировок
 
-User -> MobileApp : Запрос на AI-тренера
-User -> WebApp : Запрос на AI-тренера
+== Запрос на уведомления ==
+User -> MobileApp : 23. Запрос на уведомления
+User -> WebApp : 24. Запрос на уведомления
 
-MobileApp -> APIGateway : Запрос на AI-тренера
-WebApp -> APIGateway : Запрос на AI-тренера
+MobileApp -> ExternalAPIGateway : 25. Запрос на уведомления
+WebApp -> ExternalAPIGateway : 26. Запрос на уведомления
 
-APIGateway -> AITrainer : Запрос на рекомендации тренера
-AITrainer -> WorkoutManagement : Получение информации о текущей тренировке
-WorkoutManagement --> AITrainer : Данные о тренировке
-AITrainer --> APIGateway : Рекомендации от AI
-APIGateway --> MobileApp : Рекомендации AI-тренера
-APIGateway --> WebApp : Рекомендации AI-тренера
+ExternalAPIGateway -> NotificationService : 27. Получение уведомлений
+NotificationService -> NotificationDatabase : 28. Запрос на уведомления
+NotificationDatabase --> NotificationService : 29. Ответ с уведомлениями
+NotificationService --> ExternalAPIGateway : 30. Уведомления
+ExternalAPIGateway --> MobileApp : 31. Уведомления
+ExternalAPIGateway --> WebApp : 32. Уведомления
 
-User -> MobileApp : Запрос на уведомления
-User -> WebApp : Запрос на уведомления
+== Запрос на инвентарь ==
+User -> MobileApp : 33. Запрос на инвентарь
+User -> WebApp : 34. Запрос на инвентарь
 
-MobileApp -> APIGateway : Запрос на уведомления
-WebApp -> APIGateway : Запрос на уведомления
+MobileApp -> ExternalAPIGateway : 35. Запрос на инвентарь
+WebApp -> ExternalAPIGateway : 36. Запрос на инвентарь
 
-APIGateway -> NotificationService : Получение уведомлений
-NotificationService -> Database : Запрос на уведомления
-Database --> NotificationService : Ответ с уведомлениями
-NotificationService --> APIGateway : Уведомления
-APIGateway --> MobileApp : Уведомления
-APIGateway --> WebApp : Уведомления
+ExternalAPIGateway -> InternalAPIGateway : 37. Запрос на данные инвентаря
+InternalAPIGateway -> Inventory : 38. Запрос на инвентарь
+Inventory -> InventoryDatabase : 39. Запрос на инвентарь
+InventoryDatabase --> Inventory : 40. Данные инвентаря
+Inventory --> InternalAPIGateway : 41. Данные инвентаря
+InternalAPIGateway --> ExternalAPIGateway : 42. Данные инвентаря
+ExternalAPIGateway --> MobileApp : 43. Данные инвентаря
+ExternalAPIGateway --> WebApp : 44. Данные инвентаря
 
-User -> MobileApp : Запрос на инвентарь
-User -> WebApp : Запрос на инвентарь
+== Запрос на оплату ==
+User -> MobileApp : 45. Запрос на оплату
+User -> WebApp : 46. Запрос на оплату
 
-MobileApp -> APIGateway : Запрос на инвентарь
-WebApp -> APIGateway : Запрос на инвентарь
-@startuml
-actor User as "User"
-participant MobileApp as "Mobile App"
-participant WebApp as "Web App"
-participant APIGateway as "API Gateway"
-participant AuthService as "Auth Service"
-participant UserManagement as "User Management"
-participant WorkoutManagement as "Workout Management"
-participant AITrainer as "AI Trainer"
-participant Analytics as "Analytics"
-participant Database as "Database"
-participant NotificationService as "Notification Service"
+MobileApp -> ExternalAPIGateway : 47. Запрос на платеж
+WebApp -> ExternalAPIGateway : 48. Запрос на платеж
 
-== Registration Process ==
-User -> MobileApp : 1. Open app and select registration
-MobileApp -> APIGateway : 2. Send registration request
-APIGateway -> AuthService : 3. Forward registration request
-AuthService -> Database : 4. Create new user
-Database --> AuthService : 5. Confirm user creation
-AuthService --> APIGateway : 6. Notify success
-APIGateway --> MobileApp : 7. Send registration confirmation
-MobileApp --> User : 8. Notify user of successful registration
+ExternalAPIGateway -> PaymentService : 49. Обработка платежа
+PaymentService -> PaymentDatabase : 50. Запрос на платежные данные
+PaymentDatabase --> PaymentService : 51. Ответ с данными платежа
+PaymentService --> ExternalAPIGateway : 52. Результат обработки платежа
+ExternalAPIGateway --> MobileApp : 53. Результат обработки платежа
+ExternalAPIGateway --> WebApp : 54. Результат обработки платежа
 
-== Start Training ==
-User -> MobileApp : 9. Select AI trainer for training
-MobileApp -> APIGateway : 10. Request available workouts
-APIGateway -> WorkoutManagement : 11. Forward workout request
-WorkoutManagement -> Database : 12. Get available workouts
-Database --> WorkoutManagement : 13. Provide workout data
-WorkoutManagement --> APIGateway : 14. Send workout list
-APIGateway --> MobileApp : 15. Send workout data
-User -> MobileApp : 16. Select workout and start it
-MobileApp -> APIGateway : 17. Request AI training assistance
-APIGateway -> AITrainer : 18. Forward request for recommendations
-AITrainer -> WorkoutManagement : 19. Analyze user data and workout
-WorkoutManagement --> AITrainer : 20. Provide workout details
-AITrainer --> APIGateway : 21. Send recommendations
-APIGateway --> MobileApp : 22. Provide recommendations
-MobileApp --> User : 23. Display AI trainer recommendations
+== Интеграция с устройствами IoT ==
+User -> MobileApp : 55. Подключение устройства IoT
+User -> WebApp : 56. Подключение устройства IoT
 
+MobileApp -> ExternalAPIGateway : 57. Запрос на подключение устройства
+WebApp -> ExternalAPIGateway : 58. Запрос на подключение устройства
+
+ExternalAPIGateway -> InternalAPIGateway : 59. Пересылка запроса на инвентарь
+InternalAPIGateway -> Inventory : 60. Обработка запроса на устройство IoT
+Inventory -> InventoryDatabase : 61. Запрос на данные устройства
+InventoryDatabase --> Inventory : 62. Данные устройства
+Inventory --> InternalAPIGateway : 63. Данные устройства
+InternalAPIGateway --> ExternalAPIGateway : 64. Ответ с данными устройства
+ExternalAPIGateway --> MobileApp : 65. Данные устройства
+ExternalAPIGateway --> WebApp : 66. Данные устройства
+
+== Мониторинг системы ==
+MonitoringService -> Prometheus : 67. Сбор метрик системы
+Prometheus -> Grafana : 68. Визуализация метрик
 @enduml
-
-APIGateway -> Inventory : Запрос на данные инвентаря
-Inventory -> Database : Запрос на инвентарь
-Database --> Inventory : Данные инвентаря
-Inventory --> APIGateway : Данные инвентаря
-APIGateway --> MobileApp : Данные инвентаря
-APIGateway --> WebApp : Данные инвентаря
-
-User -> MobileApp : Запрос на оплату
-User -> WebApp : Запрос на оплату
-
-MobileApp -> APIGateway : Запрос на платеж
-WebApp -> APIGateway : Запрос на платеж
-
-APIGateway -> PaymentService : Обработка платежа
-PaymentService -> Database : Запрос на платежную и
